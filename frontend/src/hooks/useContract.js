@@ -26,49 +26,12 @@ const useContract = () => {
     loadProvider();
   }, []);
 
-  const createSession = async (title, startTime, endTime) => {
+  // Function to call IM_HERE without sending any Ether
+  const markAttendance = async () => {
     if (!contract) throw new Error("Contract is not loaded");
 
     try {
-      const tx = await contract.createSession(title, startTime, endTime);
-      const receipt = await tx.wait();
-      const sessionId = receipt.events[0].args.sessionId;
-      return sessionId;
-    } catch (error) {
-      console.error("Error creating session:", error);
-      throw error;
-    }
-  };
-
-  const openSession = async (sessionId) => {
-    if (!contract) throw new Error("Contract is not loaded");
-
-    try {
-      const tx = await contract.openSession(sessionId);
-      await tx.wait();
-    } catch (error) {
-      console.error("Error opening session:", error);
-      throw error;
-    }
-  };
-
-  const closeSession = async (sessionId) => {
-    if (!contract) throw new Error("Contract is not loaded");
-
-    try {
-      const tx = await contract.closeSession(sessionId);
-      await tx.wait();
-    } catch (error) {
-      console.error("Error closing session:", error);
-      throw error;
-    }
-  };
-
-  const markAttendance = async (sessionId) => {
-    if (!contract) throw new Error("Contract is not loaded");
-
-    try {
-      const tx = await contract.markAttendance(sessionId);
+      const tx = await contract.IM_HERE(); // No Ether is sent
       await tx.wait();
     } catch (error) {
       console.error("Error marking attendance:", error);
@@ -76,56 +39,15 @@ const useContract = () => {
     }
   };
 
-  const getSessionDetails = async (sessionId) => {
+  // Function to get the number of attendees
+  const getNumberAttending = async () => {
     if (!contract) throw new Error("Contract is not loaded");
 
     try {
-      const details = await contract.getSessionDetails(sessionId);
-      return {
-        title: details[0],
-        startTime: details[1].toNumber(),
-        endTime: details[2].toNumber(),
-        isActive: details[3],
-        attendees: details[4],
-      };
-    } catch (error) {
-      console.error("Error getting session details:", error);
-      throw error;
-    }
-  };
-
-  const getTotalAttendance = async (sessionId) => {
-    if (!contract) throw new Error("Contract is not loaded");
-
-    try {
-      const total = await contract.getTotalAttendance(sessionId);
+      const total = await contract.numberAttending();
       return total.toNumber();
     } catch (error) {
       console.error("Error getting total attendance:", error);
-      throw error;
-    }
-  };
-
-  const getAttendanceStatus = async (sessionId) => {
-    if (!contract) throw new Error("Contract is not loaded");
-
-    try {
-      const status = await contract.getAttendanceStatus(sessionId);
-      return status;
-    } catch (error) {
-      console.error("Error getting attendance status:", error);
-      throw error;
-    }
-  };
-
-  const getStudentAttendanceHistory = async (studentAddress) => {
-    if (!contract) throw new Error("Contract is not loaded");
-
-    try {
-      const history = await contract.getStudentAttendanceHistory(studentAddress);
-      return history.map((sessionId) => sessionId.toNumber());
-    } catch (error) {
-      console.error("Error getting student attendance history:", error);
       throw error;
     }
   };
@@ -134,14 +56,8 @@ const useContract = () => {
     contract,
     provider,
     signer,
-    createSession,
-    openSession,
-    closeSession,
     markAttendance,
-    getSessionDetails,
-    getTotalAttendance,
-    getAttendanceStatus,
-    getStudentAttendanceHistory,
+    getNumberAttending,
   };
 };
 

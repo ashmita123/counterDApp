@@ -1,41 +1,26 @@
 import React, { useState } from "react";
 import useContract from "../hooks/useContract";
-import "../styles/MarkAttendance.css";
 
 const MarkAttendance = () => {
-  const { contract } = useContract();
-  const [sessionId, setSessionId] = useState("");
-  const [successMessage, setSuccessMessage] = useState(null);
+  const { markAttendance, getNumberAttending } = useContract();
+  const [numberAttending, setNumberAttending] = useState(0);
 
-  const markAttendance = async () => {
+  const handleMarkAttendance = async () => {
     try {
-      await contract.markAttendance(sessionId);
-      setSuccessMessage(`Attendance for session ID ${sessionId} marked successfully!`);
-      setSessionId("");
+      await markAttendance();
+      const total = await getNumberAttending();
+      setNumberAttending(total);
+      alert("Attendance marked successfully");
     } catch (error) {
-      console.error("Failed to mark attendance:", error);
-      setSuccessMessage("Failed to mark attendance. Please try again.");
+      alert("Failed to mark attendance");
     }
   };
 
   return (
     <div className="mark-attendance">
-      <h2>Mark Attendance</h2>
-      <div>
-        <label>Session ID:</label>
-        <input
-          type="number"
-          value={sessionId}
-          onChange={(e) => setSessionId(e.target.value)}
-        />
-        <button onClick={markAttendance}>Mark Attendance</button>
-      </div>
-
-      {successMessage && (
-        <div className="success-message">
-          <p>{successMessage}</p>
-        </div>
-      )}
+      <h2>Attendance</h2>
+      <button onClick={handleMarkAttendance}>I'm Here</button>
+      <p>Total Attending: {numberAttending}</p>
     </div>
   );
 };

@@ -6,7 +6,6 @@ function App() {
   return (
     <div className="App">
       <h1>Attendance DApp</h1>
-      {/* Single Component for the New Contract */}
       <MarkAttendance />
     </div>
   );

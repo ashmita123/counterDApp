@@ -26,7 +26,6 @@ const useContract = () => {
     loadProvider();
   }, []);
 
-  // Function to call IM_HERE without sending any Ether
   const markAttendance = async () => {
     if (!contract) throw new Error("Contract is not loaded");
 

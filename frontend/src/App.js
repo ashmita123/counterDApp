@@ -1,12 +1,12 @@
 import React from "react";
-import MarkAttendance from "./components/MarkAttendance";
+import Counter from "./components/Counter";
 import "./styles/App.css";
 
 function App() {
   return (
     <div className="App">
-      <h1>Attendance DApp</h1>
-      <MarkAttendance />
+      <h1>Counter DApp</h1>
+      <Counter/>
     </div>
   );
 }

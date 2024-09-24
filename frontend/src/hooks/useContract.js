@@ -1,62 +1,54 @@
-import { useState, useEffect } from "react";
-import { ethers } from "ethers";
-import Attendance from "../contracts/Attendance.json";
+import { useState, useEffect, useCallback } from 'react';
+import { ethers } from 'ethers';
+import Counter from '../contracts/Counter.json';
 
 const useContract = () => {
   const [contract, setContract] = useState(null);
-  const [provider, setProvider] = useState(null);
-  const [signer, setSigner] = useState(null);
 
   useEffect(() => {
-    const loadProvider = async () => {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      setProvider(provider);
-
-      const signer = provider.getSigner();
-      setSigner(signer);
-
-      const contract = new ethers.Contract(
-        process.env.REACT_APP_CONTRACT_ADDRESS,
-        Attendance.abi,
-        signer
-      );
-      setContract(contract);
+    const loadContract = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const loadedContract = new ethers.Contract(
+          process.env.REACT_APP_CONTRACT_ADDRESS,
+          Counter.abi,
+          signer
+        );
+        setContract(loadedContract);
+      } else {
+        console.error('Ethereum provider not available');
+      }
     };
 
-    loadProvider();
+    loadContract();
   }, []);
 
-  const markAttendance = async () => {
-    if (!contract) throw new Error("Contract is not loaded");
-
+  const performAction = useCallback(async (action, value) => {
+    if (!contract) {
+      console.error("Contract is not loaded");
+      return;
+    }
     try {
-      const tx = await contract.IM_HERE(); // No Ether is sent
+      const tx = await contract[action](value);
       await tx.wait();
+      return await contract.value();  // Fetch updated value after transaction
     } catch (error) {
-      console.error("Error marking attendance:", error);
-      throw error;
+      console.error(`${action} Error:`, error);
     }
-  };
-
-  // Function to get the number of attendees
-  const getNumberAttending = async () => {
-    if (!contract) throw new Error("Contract is not loaded");
-
-    try {
-      const total = await contract.numberAttending();
-      return total.toNumber();
-    } catch (error) {
-      console.error("Error getting total attendance:", error);
-      throw error;
-    }
-  };
+  }, [contract]);
 
   return {
-    contract,
-    provider,
-    signer,
-    markAttendance,
-    getNumberAttending,
+    initializeCounter: (value) => performAction('initialize', value),
+    incrementCounter: (value) => performAction('increment', value),
+    decrementCounter: (value) => performAction('decrement', value),
+    getCurrentValue: async () => {
+      if (!contract) {
+        console.error("Contract is not loaded");
+        return;
+      }
+      return await contract.value();
+    }
   };
 };
 
